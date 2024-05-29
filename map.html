@@ -9,6 +9,9 @@
     <!-- thư viện Leaflet Control Geocoder -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- thư viện Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <style>
         html, body, #map {
             width: 100%;
@@ -16,16 +19,46 @@
             margin: 0;
             padding: 0;
         }
+        #coords, #inputs {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: white;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        #inputs {
+            top: 10px;
+            bottom: auto;
+        }
+        #inputs input {
+            margin: 5px 0;
+            width: calc(100% - 22px);
+        }
+        #inputs button {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <!-- Phần hiển thị bản đồ -->
     <div id="map"></div>
-    
+    <!-- Hiển thị tọa độ -->
+    <div id="coords">Lat: , Lng: </div>
+    <!-- Nhập địa chỉ -->
+    <div id="inputs">
+        <input type="text" id="start" placeholder="Start address">
+        <input type="text" id="end" placeholder="End address">
+        <button onclick="route()">Find Route</button>
+    </div>
+
     <script>
         // Khởi tạo bản đồ và thiết lập vị trí ban đầu
         var map = L.map('map').setView([21.0605556, 105.8452778], 13);
-        
+
         // Thêm tile layer (layer bản đồ)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -44,6 +77,33 @@
             ]).addTo(map);
             map.fitBounds(poly.getBounds());
         }).addTo(map);
+
+        // Thêm sự kiện mousemove để hiển thị tọa độ
+        var coordsDiv = document.getElementById('coords');
+        map.on('mousemove', function(e) {
+            coordsDiv.innerHTML = 'Lat: ' + e.latlng.lat.toFixed(5) + ', Lng: ' + e.latlng.lng.toFixed(5);
+        });
+
+        // Hàm định tuyến đường đi
+        function route() {
+            var startAddress = document.getElementById('start').value;
+            var endAddress = document.getElementById('end').value;
+            if (startAddress && endAddress) {
+                L.Control.Geocoder.nominatim().geocode(startAddress, function(results) {
+                    var startPoint = results[0].center;
+                    L.Control.Geocoder.nominatim().geocode(endAddress, function(results) {
+                        var endPoint = results[0].center;
+                        L.Routing.control({
+                            waypoints: [
+                                L.latLng(startPoint.lat, startPoint.lng),
+                                L.latLng(endPoint.lat, endPoint.lng)
+                            ],
+                            routeWhileDragging: true
+                        }).addTo(map);
+                    });
+                });
+            }
+        }
     </script>
 </body>
 </html>
