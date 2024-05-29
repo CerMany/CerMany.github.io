@@ -20,9 +20,24 @@
             padding: 0;
             position: relative; /* Thêm thuộc tính này */
         }
+        #map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        #map {
+            width: 100%;
+            height: calc(100% - 30px); /* Giảm chiều cao của bản đồ để tạo không gian cho nút */
+        }
+        #find-zone-button {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            z-index: 1000; /* Đặt z-index để nút hiển thị phía trên */
+        }
         #coords, #inputs {
             position: absolute;
-            top: 10px;
+            top: 45px;
             right: 10px;
             background: white;
             padding: 5px;
@@ -33,7 +48,6 @@
             z-index: 1000; /* Đặt z-index để phần tử hiển thị phía trước */
         }
         #inputs {
-            top: 60px; /* Điều chỉnh vị trí xuống dưới để không bị ẩn mất */
             display: none; /* Ẩn phần tử ban đầu */
         }
         #inputs input {
@@ -47,11 +61,13 @@
 </head>
 <body>
     <!-- Phần hiển thị bản đồ -->
-    <div id="map"></div>
+    <div id="map-container">
+        <div id="map"></div>
+        <!-- Nút để hiển thị thanh tìm kiếm -->
+        <button id="find-zone-button" onclick="toggleFindZone()">Show Find Zone</button>
+    </div>
     <!-- Hiển thị tọa độ -->
     <div id="coords">Lat: , Lng: </div>
-    <!-- Nút để hiển thị thanh tìm kiếm -->
-    <button onclick="toggleFindZone()">Show Find Zone</button>
     <!-- Nhập địa chỉ -->
     <div id="inputs">
         <input type="text" id="start" placeholder="Start address">
