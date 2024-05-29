@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ</title>
+    <!-- Bao gồm thư viện Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map { /* Kích thước của bản đồ */
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Phần hiển thị bản đồ -->
+    <div id="map"></div>
+    
+    <script>
+        // Khởi tạo bản đồ và thiết lập vị trí ban đầu
+        var map = L.map('map').setView([21.0605556, 105.8452778], 13);
+        
+        // Thêm tile layer (layer bản đồ)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    </script>
+</body>
+</html>
