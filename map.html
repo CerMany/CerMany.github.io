@@ -6,10 +6,10 @@
     <title>World map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- thư viện Leaflet Control Geocoder -->
+    <!-- Thư viện Leaflet Control Geocoder -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <!-- thư viện Leaflet Routing Machine -->
+    <!-- Thư viện Leaflet Routing Machine -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <!-- Thư viện Mapbox GL JS -->
@@ -23,7 +23,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            position: relative; /* Thêm thuộc tính này */
+            position: relative;
         }
         #map-container {
             position: relative;
@@ -32,13 +32,16 @@
         }
         #map {
             width: 100%;
-            height: calc(100% - 30px); /* Giảm chiều cao của bản đồ để tạo không gian cho nút */
+            height: calc(100% - 30px);
         }
-        #find-zone-button {
+        #find-zone-button, #toggle-3d-button {
             position: absolute;
             top: 10px;
             left: 50px;
-            z-index: 1000; /* Đặt z-index để nút hiển thị phía trên */
+            z-index: 1000;
+        }
+        #toggle-3d-button {
+            left: 150px;
         }
         #coords, #inputs {
             position: absolute;
@@ -50,10 +53,10 @@
             border-radius: 3px;
             font-family: Arial, sans-serif;
             font-size: 12px;
-            z-index: 1000; /* Đặt z-index để phần tử hiển thị phía trước */
+            z-index: 1000;
         }
         #inputs {
-            display: none; /* Ẩn phần tử ban đầu */
+            display: none;
         }
         #inputs input {
             margin: 5px 0;
@@ -65,19 +68,12 @@
     </style>
 </head>
 <body>
-    <!-- Phần hiển thị bản đồ -->
     <div id="map-container">
         <div id="map"></div>
-        <!-- Nút để hiển thị thanh tìm kiếm -->
         <button id="find-zone-button" onclick="toggleFindZone()">Show Find Zone</button>
+        <button id="toggle-3d-button">Toggle 2D/3D</button>
     </div>
-
-    <!-- Nút chuyển đổi 2D/3D -->
-    <button id="toggle-3d-button" style="position: absolute; top: 10px; left: 150px; z-index: 1000;">Toggle 2D/3D</button>
-
-    <!-- Hiển thị tọa độ -->
     <div id="coords">Lat: , Lng: </div>
-    <!-- Nhập địa chỉ -->
     <div id="inputs">
         <input type="text" id="start" placeholder="Start address">
         <input type="text" id="end" placeholder="End address">
@@ -85,19 +81,14 @@
     </div>
 
     <script>
-        // Hàm để ẩn hoặc hiển thị thanh tìm kiếm
         function toggleFindZone() {
             var findZone = document.getElementById('inputs');
-            if (findZone.style.display === 'none') {
-                findZone.style.display = 'block';
-            } else {
-                findZone.style.display = 'none';
-            }
+            findZone.style.display = findZone.style.display === 'none' ? 'block' : 'none';
         }
 
         var map = L.map('map').setView([21.0605556, 105.8452778], 13);
 
-        L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MauepMbm9J2dtT11Z6yZ', {
+        var tileLayer = L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MauepMbm9J2dtT11Z6yZ', {
             attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> contributors'
         }).addTo(map);
 
@@ -119,33 +110,21 @@
             coordsDiv.innerHTML = 'Lat: ' + e.latlng.lat.toFixed(5) + ', Lng: ' + e.latlng.lng.toFixed(5);
         });
 
-        map.on('zoomend', function() {
-            var zoomLevel = map.getZoom();
-            if (zoomLevel < 12) {
-                map.removeControl(geocoderControl);
+        var mapboxLayer;
+        document.getElementById('toggle-3d-button').onclick = function() {
+            if (map.hasLayer(mapboxLayer)) {
+                map.removeLayer(mapboxLayer);
+                tileLayer.addTo(map);
             } else {
-                map.addControl(geocoderControl);
+                if (!mapboxLayer) {
+                    mapboxLayer = L.mapboxGL({
+                        style: 'https://api.maptiler.com/maps/hybrid/style.json?key=MauepMbm9J2dtT11Z6yZ',
+                        accessToken: 'MauepMbm9J2dtT11Z6yZ' // Thay thế bằng access token của bạn
+                    });
+                }
+                map.addLayer(mapboxLayer);
             }
-        });
-
-        var is3D = false;
-var mapboxLayer;
-
-document.getElementById('toggle-3d-button').onclick = function() {
-    if (is3D) {
-        map.removeLayer(mapboxLayer);
-        L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MauepMbm9J2dtT11Z6yZ', {
-            attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> contributors'
-        }).addTo(map);
-    } else {
-        mapboxLayer = L.mapboxGL({
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=MauepMbm9J2dtT11Z6yZ',
-            accessToken: 'your-access-token' // Thay thế bằng access token của bạn
-        }).addTo(map);
-    }
-    is3D = !is3D;
-};
-
+        };
 
         function route() {
             var startAddress = document.getElementById('start').value;
