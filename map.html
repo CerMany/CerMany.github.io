@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bản đồ</title>
+    <title>World map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- thư viện Leaflet Control Geocoder -->
@@ -88,8 +88,8 @@
 
         var map = L.map('map').setView([21.0605556, 105.8452778], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+        L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MauepMbm9J2dtT11Z6yZ', {
+            attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> contributors'
         }).addTo(map);
 
         var geocoderControl = L.Control.geocoder({
