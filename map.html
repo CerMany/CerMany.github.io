@@ -12,6 +12,11 @@
     <!-- thư viện Leaflet Routing Machine -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <!-- Thư viện Mapbox GL JS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js'></script>
+    <!-- Thư viện Leaflet.MapboxGL -->
+    <script src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"></script>
     <style>
         html, body, #map {
             width: 100%;
@@ -66,6 +71,10 @@
         <!-- Nút để hiển thị thanh tìm kiếm -->
         <button id="find-zone-button" onclick="toggleFindZone()">Show Find Zone</button>
     </div>
+
+    <!-- Nút chuyển đổi 2D/3D -->
+    <button id="toggle-3d-button" style="position: absolute; top: 10px; left: 150px; z-index: 1000;">Toggle 2D/3D</button>
+
     <!-- Hiển thị tọa độ -->
     <div id="coords">Lat: , Lng: </div>
     <!-- Nhập địa chỉ -->
@@ -118,6 +127,25 @@
                 map.addControl(geocoderControl);
             }
         });
+
+        var is3D = false;
+var mapboxLayer;
+
+document.getElementById('toggle-3d-button').onclick = function() {
+    if (is3D) {
+        map.removeLayer(mapboxLayer);
+        L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=MauepMbm9J2dtT11Z6yZ', {
+            attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> contributors'
+        }).addTo(map);
+    } else {
+        mapboxLayer = L.mapboxGL({
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=MauepMbm9J2dtT11Z6yZ',
+            accessToken: 'your-access-token' // Thay thế bằng access token của bạn
+        }).addTo(map);
+    }
+    is3D = !is3D;
+};
+
 
         function route() {
             var startAddress = document.getElementById('start').value;
